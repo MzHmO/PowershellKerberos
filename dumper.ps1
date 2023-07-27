@@ -75,7 +75,7 @@ function Invoke-AsSystem {
         }
 
         $currentname = $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)
-        if ($currentname -match "NT AUTHORITY"){
+        if ($currentname -match "NT.AUT.*\\SYSTEM"){
             return $true
         } else{
             return $false
@@ -184,7 +184,7 @@ Function RunningAsAdmin()
 {
     $user = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $princ = New-Object System.Security.Principal.WindowsPrincipal($user)
-    if($princ.IsInRole("Administrators") -or $princ.IsInRole("Администраторы") -or $user.Name -match "NT AUTHORITY"){return $true}
+    if($princ.IsInRole("Administrators") -or $princ.IsInRole("Администраторы") -or $user.Name -match "NT.AUT.*\\SYSTEM"){return $true}
     else{return $false}
 }
 
