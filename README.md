@@ -1,5 +1,6 @@
 # PowershellKerberos
-Some scripts to abuse kerberos using Powershell
+Some scripts to abuse kerberos using Powershell. Check how to use video (Thanks to [@BRIPWN](https://twitter.com/BriPwn))
+- [YouTube](https://youtu.be/UvQPRFo_w54)
 
 ## Injector.ps1
 Small tool for injecting kerberos tickets. Supports two work modes:
