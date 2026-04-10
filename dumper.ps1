@@ -4,7 +4,7 @@ $systemname = "NT.AUT.*\\"
 function showAwesomeBanner{
     write-host "
 
-             .AMMMMMISHAMMA.
+        .AMMMMMISHAMMA.
        .AV. :::.:.:.::MA.
       A' :..        : .:`A
      A'..              . `A.
@@ -740,5 +740,6 @@ function main{
     DisplaySessionCreds $sessioncreds
 }
 
+write-host "I love Katya"
 $DumpAllTkt = $false
 main
